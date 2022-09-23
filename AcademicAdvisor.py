@@ -54,7 +54,7 @@ def advisorFunc():
 
 
     #First the adivsor will ask basic questions that can be used later
-    print("> Hello, I am Ada, your acadmic advisor. What's your first name?")
+    print("> Hello, I am Ada, your academic advisor. What's your first name?")
     #loop to get name
     while studentName == None:
         inputString = input("< ")
