@@ -1,9 +1,9 @@
-#Program Name: AcaDemic Adisor (ADA)
+#Program Name: AcaDemic Advisor (ADA)
 #Author: Victor LaBrie
 #Date: September 22, 2022
 #THE PROBLEM/GOAL:
 #The goal of this program is to try to imitate an academic advisor in the same
-#way that ELIZA imitated a Georgian psychologist. That is to say, we dont' want 
+#way that ELIZA imitated a Georgian psychologist. That is to say, we don't want 
 #necessarily to say anything helpful, but we want to be able to take what is said and
 #use it in a way to keep the user engaged in a way that it might feel like talking to someone. 
 #EXAMPLE USAGE:
@@ -80,7 +80,7 @@ def advisorFunc():
             return
         #One of the higher priority patterns to look for are those regarding abusive language. I will only demonstrate this with one of the
         #more mild ones, simply becuase there are just too many abusive words for the scope of this project.
-        elif re.search(r"(?: |^)[Hh][Ee3][Ll1\|]{2}(?: |$)",inputString):
+        elif re.search(r"(?: |^)[Hh][Ee3][Ll1\|]{2}(?: |$|\.|\!)",inputString):
             outputString += "I won't tolerate that manner of unprofessional language in my office. Get the hell out of here."
             print(outputString)
             #If any variation of "hell" is returned (but not "hello" or "shell", or other words containing "hell"), the user will be kicked out for abusive language.
