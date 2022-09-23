@@ -16,11 +16,20 @@
 #   on what get's matched, the program will respond accordingly. Some responses will use
 #   "memorized" information, so certain keywords and patterns will cause the program to 
 #   ask for that information and won't allow the user to continue until it's entered.
-#    
-#
-#
+#   
+#EXAMPLE:
+# < I want to learn more about graduation requirements.
+# > What year are you?
+# < 4th.
+# > So you're a senior. How many credits do you have?
+# < Koalas.
+# > I didn't quite catch that. How many credits do you have?
+# < About 110.
+# > More than halfway there. How about your GPA?
+# < It's about 3.338.
+# > That's above average. What else would you like to know about graduation.
 #Sidenote: This could have been a lot shorter if I used functions. Several things are repeated.
-#A future Eliza-like chatbot might have certain functions assosciated with different keywords.
+#If I wrote anotherEliza-like chatbot might have certain functions assosciated with different keywords.
 #2nd Sidenote: Some responses aren't meant to be taken seriously.
 from random import randint
 import re
