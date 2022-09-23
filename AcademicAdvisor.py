@@ -21,6 +21,7 @@
 #
 #Sidenote: This could have been a lot shorter if I used functions. Several things are repeated.
 #A future Eliza-like chatbot might have certain functions assosciated with different keywords.
+#2nd Sidenote: Some responses aren't meant to be taken seriously.
 from random import randint
 import re
 
@@ -68,11 +69,33 @@ def advisorFunc():
         #only if "exit" is typed by itself.
         if re.match(r"exit$", inputString):
             return
-        #If user wants to aks something. Generic question and response.
-        elif re.search(r"(?:Can|May) I ask(?: you)? (?:something(?: else)?|a(?:nother)? question)\?", inputString):
-            #responses shouldn't always be the same, which can be handled by having a list of responses and randomly choosing
-            responseList = ["What do you need help with?", "Ask away.", "Go ahead."]
-            outputString += responseList[randint(0,len(responseList)-1)]
+        #One of the higher priority patterns to look for are those regarding abusive language. I will only demonstrate this with one of the
+        #more mild ones, simply becuase there are just too many abusive words for the scope of this project.
+        elif re.search(r"(?: |^)[Hh][Ee3][Ll1\|]{2}(?: |$)",inputString):
+            outputString += "I won't tolerate that manner of unprofessional language in my office. Get the hell out of here."
+            print(outputString)
+            #If any variation of "hell" is returned (but not "hello" or "shell", or other words containing "hell"), the user will be kicked out for abusive language.
+            return
+        #Regex explanation: If credits are mentioned, the program will prompt the use to tell it how many credits they have.
+        elif re.search(r"[Cc]redits", inputString):    
+            while studentCredits == None:
+                    outputString += "How many credits do you have?"
+                    print(outputString)
+                    outputString = "> "
+                    inputString = input("< ")
+                    if re.match(r"exit$", inputString):
+                        return
+                    #Regex explanation: Get number of credits from response. Will be between 0 and 999.
+                    thisMatch = re.search(r"(?:.* |^)([0-9]{1,3}).*",inputString)
+                    if thisMatch:
+                        studentCredits = int(thisMatch.group(1))
+                        if studentCredits < 60:
+                            outputString += "You're not quite halfway there. "
+                        else:
+                            outputString += "You're more than halfway there. "
+                    else:
+                        outputString += "Didn't catch that. "
+            outputString += "What else would you like to know about credits."
         #If input contains gpa, GPA, or Gpa:
         elif re.search(r"[Gg](?:PA|pa)", inputString):
             while studentGPA == None:
@@ -82,7 +105,7 @@ def advisorFunc():
                 inputString = input("< ")
                 if re.match(r"exit$", inputString):
                     return
-                #GPA should be a number between 0 and 5 followed by up to 3 decimals. The .* at the end allows for other words but doesn't capture them.
+                #Regex explanation: GPA should be a number between 0 and 5 followed by up to 3 decimals. The .* at the end allows for other words but doesn't capture them.
                 thisMatch = re.search(r"([0-5]{1}\.[0-9]{1,3}).*", inputString)
                 if thisMatch:
                     studentGPA = float(thisMatch.group(1))
@@ -93,20 +116,46 @@ def advisorFunc():
                 else:
                     outputString += "Sorry, I'm hard of hearing."
             outputString += "Is there anything else about your GPA you want to talk about?"
-        #If input contains keyword "major" or "Major".
+        if re.search(r"(?:[Yy]ear|[Gg]rade)", inputString):    
+            while studentGrade == None:
+                    thisMatch = None
+                    outputString += "What year are you?"
+                    print(outputString)
+                    outputString = "> "
+                    inputString = input("< ")
+                    if re.match(r"exit$", inputString):
+                        return
+                    #Regex explanation: Will capture any variation of grade/year that I could think of when I wrote this.
+                    thisMatch = re.search(r"([Ff]irst|[Ss]econd|[Tt]hird|[Ff]ourth|[Ff]ifth|[Ss]ixth|1st|2nd|3rd|[456]th|[Ff]reshman|[Ss]ophomore|[Jj]unior|[Ss]enior)", inputString)
+                    if thisMatch:
+                        matchedGrade = thisMatch.group(1).lower()
+                        if matchedGrade in ["first", "1st", "freshman"]:
+                            studentGrade = "freshman"
+                        elif matchedGrade in ["second", "2nd", "sophomore"]:
+                            studentGrade = "sophomore"
+                        elif matchedGrade in ["third", "3rd", "junior"]:
+                            studentGrade = "junior"
+                        elif matchedGrade in ["fourth", "fifth", "sixth", "4th", "5th", "6th", "senior"]:
+                            studentGrade = "senior"
+                        outputString += ("So you're a " + studentGrade + ". ")
+                    else:
+                        outputString += "I didn't quite get that. "
+                    outputString += "What else would you like to know about your year?"
+        #Regex explanation: If input contains keyword "major" or "Major".
         elif re.search(r"[Mm]ajor", inputString):
             #If major hasn't been discussed before, ADA will ask about the major in a loop until a valid input is received.
             while studentMajor == None:
                 print("> Before we talk about your major, tell me what you're majoring in.")
                 inputString = input("< ")
-                #Captures major. User might say "My major is" or "I'm majoring in", but they're not necessary. The major itself is only going to be between 0 and 3 words.
-                #The first two words might have a 's at the end (such as in women's studies).
-                thisMatch = re.search(r"(?:(?:My major is )|(?:I'm majoring in )|(?:It's ))?([A-Za-z][a-z]+(?:'s){0-2} ?[A-Za-z]*)\.", inputString)
+                if re.match(r"exit$", inputString):
+                    return
+                #Regex explanation: Captures major. Major itself is the only thing being captured here. Usually will 
+                thisMatch = re.search(r"(?:(?:My major is )|(?:I'm majoring in )|(?:It's ))?([A-Za-z][a-z]* ?[A-Za-z][a-z]+(?:'s)? ?[A-Za-z]*)\.", inputString)
                 if thisMatch:
                     studentMajor = thisMatch.group(1).lower()
             #After major is recorded, program will ask general question about major.
             outputString += "What would you like to know about "+ studentMajor +", " + studentName + "?"
-        #If the user mentions graduation
+        #Regex explanation: If the user mentions graduation, graduate, or graduating.
         elif re.search(r"[Gg]raduat(?:e|ion|ing)", inputString):
             #If relevant info not already known, Ada will ask
             #If student year not known:
@@ -118,6 +167,7 @@ def advisorFunc():
                 inputString = input("< ")
                 if re.match(r"exit$", inputString):
                     return
+                #Regex explanation: Will capture any variation of grade/year that I could think of when I wrote this.
                 thisMatch = re.search(r"([Ff]irst|[Ss]econd|[Tt]hird|[Ff]ourth|[Ff]ifth|[Ss]ixth|1st|2nd|3rd|[456]th|[Ff]reshman|[Ss]ophomore|[Jj]unior|[Ss]enior)", inputString)
                 if thisMatch:
                     matchedGrade = thisMatch.group(1).lower()
@@ -140,8 +190,8 @@ def advisorFunc():
                 inputString = input("< ")
                 if re.match(r"exit$", inputString):
                     return
-                #Get number of credits from response
-                thisMatch = re.search(r"([0-9]{1,3}).*",inputString)
+                #Regex explanation: Get number of credits from response. Will be between 0 and 999.
+                thisMatch = re.search(r"(?:.* |^)([0-9]{1,3}).*",inputString)
                 if thisMatch:
                     studentCredits = int(thisMatch.group(1))
                     if studentCredits < 60:
@@ -158,6 +208,7 @@ def advisorFunc():
                 inputString = input("< ")
                 if re.match(r"exit$", inputString):
                     return
+                #Regex explanation: GPA again, same as above. This is why I should have used functions.
                 thisMatch = re.search(r"([0-9]{1}\.[0-9]{1,3}).*", inputString)
                 if thisMatch:
                     studentGPA = float(thisMatch.group(1))
@@ -173,21 +224,35 @@ def advisorFunc():
                 outputString += "What would you like to know about graduation?"
                 graduationVisited = True
         #The rest of these responses are more basic and only seek to continue the conversation.
+        #Regex explanation: If the user says something about their x, the program will substitute out everything 
+        #before the object of the sentence with "what about your".
         elif re.search(r".* ?[Mm]y [A-Za-z]* ?\.$", inputString):
             outputString += re.sub(r".* ?[Mm]y", r"What about your", inputString)[:-1] + "?"
         #Response to user asking for Ada to do something.
+        #Regex explanation: Variations on question regarding the ability of the program to do something.
         elif re.search(r"(?:Can|Would|May|Will|Might|Could) you .*\?", inputString):
             outputString += ("I'm sorry " + studentName + ", I'm afraid I can't do that.")
+        #To some questions, a user might respond simply "yes" or "no", or some variation of those.
+        #Regex explanation: Probably overly complicated way of saying many forms of yes or no that aren't part of another word.
+        elif re.search(r"(?:(?:(?:N|(?: |^)n)(?:egative|o|ah))|(?:(?:Y|(?: |^)y)(?:es|uh|ah|eh?|essir)))", inputString):
+            responseList = ["Uh-huh. ", "Ah. ", "I see. ", "Gotcha. "]
+            secondResponseList = ["Is there anything else?", "What else did you want to ask?", "How are the wife and kids?"]
+            outputString += (responseList[randint(0,len(responseList)-1)] + secondResponseList[randint(0,len(secondResponseList)-1)])
+        #If user wants to aks something. Generic question and response.
+        elif re.search(r"(?:Can|May) I ask(?: you)? (?:something(?: else)?|a(?:nother)? question)\?", inputString):
+            #responses shouldn't always be the same, which can be handled by having a list of responses and randomly choosing
+            responseList = ["What do you need help with?", "Ask away.", "Go ahead."]
+            outputString += responseList[randint(0,len(responseList)-1)]
         #If no pattern or keyword is found, program will respond randomly from list of responses. Depending
         #on what was already discussed, Ada will bring up other topics.
         else:
             responseList = ["I didn't catch that.", "Say that again.", "Slow down there.", "Uh, what?", "I don't understand."]
-            #if studentGrade != None:
-            #    responseList += ("Let's change the topic. Do you have any questions about being a " + studentGrade + "?")
-            #if studentMajor != None:
-            #    responseList += ("I'm not sure what you're getting at, so let's change the topic. Do you have any questions about " + studentMajor + "?")
-            #if studentGPA != None:
-            #   responseList += ("What? Whatever. Something I want to know is if you could improve your GPA." + str(studentGPA) + " is ok, but it could be better.")
+            if studentGrade != None:
+                responseList.append("Let's change the topic. Do you have any questions about being a " + studentGrade + "?")
+            if studentMajor != None:
+                responseList.append("I'm not sure what you're getting at, so let's change the topic. Do you have any questions about " + studentMajor + "?")
+            if studentGPA != None:
+               responseList.append("What? Whatever. Changing the subject here, but are you satisfied with a " + str(studentGPA) + " GPA?")
             outputString += responseList[randint(0,len(responseList)-1)]
         print(outputString)
 advisorFunc()
